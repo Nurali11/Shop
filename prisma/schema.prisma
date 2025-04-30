@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductTypes {
+  Phone
+  Electronics
+  Laptops
+  Accessories
+}
+
+enum Status {
+  New
+  Used
+}
+
+enum Roles {
+  ADMIN
+  SUPER_ADMIN
+  USER
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  firstName     String?
+  lastName      String?
+  role          Roles?
+  email         String    @unique
+  year          String?
+  password      String?
+  photo         String?
+  Region        Region?   @relation(fields: [regionId], references: [id])
+  regionId      Int?
+  status        String?    @default("INACTIVE")
+  Products      Product[]
+  sentChats     Chat[]    @relation("FromUser")
+  receivedChats Chat[]    @relation("ToUser")
+
+  FromMessage Message[] @relation("FromUser")
+  ToMessage   Message[] @relation("ToUser")
+
+  Likes     Likes[]
+  Comments  Comments[]
+  Orders    Order[]
+  Views     Views[]
+  createdAt DateTime   @default(now())
+}
+
+model Product {
+  id          Int          @id @default(autoincrement())
+  name        String
+  price       Int
+  categoryId  Int
+  skidka      Float
+  description String
+  count       Int
+  type        ProductTypes
+  status      Status
+  colors      Color[]      @relation("ColorProducts")
+  orders      Order[]
+  Views       Views[]
+  Likes       Likes[]
+  Comments    Comments[]
+  createdAt   DateTime     @default(now())
+  Category    Category     @relation(fields: [categoryId], references: [id])
+  User        User?        @relation(fields: [userId], references: [id])
+  userId      Int?
+}
+
+model Region {
+  id        Int      @id @default(autoincrement())
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model Color {
+  id        Int       @id @default(autoincrement())
+  name      String
+  products  Product[] @relation("ColorProducts")
+  createdAt DateTime  @default(now())
+}
+
+model Views {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  Product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Comments {
+  id        Int      @id @default(autoincrement())
+  text      String
+  star      Float
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  Product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime @default(now())
+}
+
+model Chat {
+  id        Int       @id @default(autoincrement())
+  from      User      @relation("FromUser", fields: [fromId], references: [id])
+  fromId    Int
+  to        User      @relation("ToUser", fields: [toId], references: [id])
+  toId      Int
+  Message   Message[]
+  createdAt DateTime  @default(now())
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  Chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    Int
+  from      User     @relation("FromUser", fields: [fromId], references: [id])
+  fromId    Int
+  to        User     @relation("ToUser", fields: [toId], references: [id])
+  toId      Int
+  text      String
+  createdAt DateTime @default(now())
+}
+
+model Likes {
+  id        Int      @id @default(autoincrement())
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+  Product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  Product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  photo     String
+  createdAt DateTime  @default(now())
+  Product   Product[]
+}

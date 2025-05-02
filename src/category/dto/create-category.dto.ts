@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ProductTypes } from '@prisma/client';
 import { IsString, IsUrl } from 'class-validator';
 
 export class CreateCategoryDto {
@@ -15,4 +16,10 @@ export class CreateCategoryDto {
   })
   @IsUrl()
   photo: string;
+
+  @ApiProperty({
+    example: ProductTypes.Phone,
+    description: "Type of the product",
+  })
+  type: ProductTypes
 }

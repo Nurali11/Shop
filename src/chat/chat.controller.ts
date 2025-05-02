@@ -11,9 +11,10 @@ import { ApiQuery } from '@nestjs/swagger';
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
+  create(@Body() createChatDto: CreateChatDto, @Req() req: Request) {
+    return this.chatService.create(createChatDto, req);
   }
 
   @ApiQuery({

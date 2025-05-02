@@ -1,8 +1,8 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import type { File as MulterFile } from 'multer'; // 👈 правильный импорт типа
+import type { File as MulterFile } from 'multer';
 
 @Controller('file')
 export class MulterController {
@@ -30,6 +30,11 @@ export class MulterController {
     }),
   )
   uploadFile(@UploadedFile() file: MulterFile) {
+    if (!file) {
+      throw new BadRequestException('Send file please');
+    }
+
     return { url: `uploads/${file.filename}` };
   }
+
 }

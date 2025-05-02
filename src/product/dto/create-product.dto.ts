@@ -50,7 +50,7 @@ export class CreateProductDto {
   count: number;
 
   @ApiProperty({
-    name: "color",
+    name: "colors",
     example: [1],
     description: "Color of the product"
   })

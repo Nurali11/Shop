@@ -10,9 +10,10 @@ export class ChatService {
   constructor(
     private prisma: PrismaService
   ){}
-  async create(data: CreateChatDto) {
+  async create(data: CreateChatDto, req: Request) {
     try {
-      const {fromId, toId} = data
+      const {toId} = data
+      const fromId = req['user'].id
       let existing = await this.prisma.chat.findFirst({where: {
         OR: [
           {fromId, toId},
@@ -25,7 +26,12 @@ export class ChatService {
         return
       }
 
-      let newChat = await this.prisma.chat.create({data})
+      let newChat = await this.prisma.chat.create({
+        data: {
+          fromId,
+          toId
+        }
+      })
       return newChat
     } catch (error) {
       throw new BadRequestException({message: error.message})

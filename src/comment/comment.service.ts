@@ -35,9 +35,13 @@ export class CommentService {
       throw new BadRequestException({message: error.message})
     }
   }
-  async findAll() {
+  async findAll(productId: number, fromId: number) {
     try {
-      let all = await this.prisma.comments.findMany()
+      let filter:any = {}
+      if(productId){filter.productId = productId}
+      if(fromId){filter.fromId = fromId}
+
+      let all = await this.prisma.comments.findMany({where: filter})
       return all
     } catch (error) {
       throw new BadRequestException({message: error.message})

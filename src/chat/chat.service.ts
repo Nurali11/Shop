@@ -32,10 +32,15 @@ export class ChatService {
     }
   }
 
-  async findAll() {
+  async findAll(fromId: number, toId: number) {
     try {
+      let filter: any= {} 
+      if(fromId) { filter.fromId = fromId }
+      if(toId) { filter.toId = toId }
+
       let all = await this.prisma.chat.findMany(
-        {include:
+        {where: filter,
+          include:
           {
             from: {select: {id: true, firstName: true, lastName: true, email: true}},
             to: {select: {id: true, firstName: true, lastName: true, email: true}}, 

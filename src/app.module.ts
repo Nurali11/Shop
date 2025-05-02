@@ -22,22 +22,24 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
-  imports: [UserModule, PrismaModule,
+  imports: [
     JwtModule.register({
       global: true,
       secret: "sekret",
       signOptions: { expiresIn: '1hr' },
     }),
+    PrismaModule,
+    UserModule,
+    UsersModule,
     RegionModule,
-    ProductModule,
     CategoryModule,
+    ProductModule,
+    ColorModule,
     CommentModule,
     LikeModule,
     ViewsModule,
-    ColorModule,
     ChatModule,
     MessageModule,
-    UsersModule,
     OrderModule,
     SessionsModule,
     ServeStaticModule.forRoot({

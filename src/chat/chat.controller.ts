@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CheckGuard } from 'src/auth/check.jwt.guard';
 import { Request } from 'express';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('chat')
 export class ChatController {
@@ -15,9 +16,18 @@ export class ChatController {
     return this.chatService.create(createChatDto);
   }
 
+  @ApiQuery({
+      name: "fromId",
+      required: false
+    })
+    @ApiQuery({
+      name: "toId",
+      required: false
+    })
+    
   @Get()
-  findAll() {
-    return this.chatService.findAll();
+  findAll(@Query("fromId") fromId: number, @Query("toId") toId: number) {
+    return this.chatService.findAll(fromId, toId);
   }
 
   @UseGuards(AuthGuard)

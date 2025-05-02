@@ -46,9 +46,14 @@ export class OrderService {
     }
   }
 
-  async findAll() {
+  async findAll(productId: number, userId: number) {
     try {
-      let orders = await this.prisma.order.findMany()
+      let orders = await this.prisma.order.findMany({
+        where: {
+          productId: productId || {},
+          userId: userId || {},
+        }
+      })
       return orders
     } catch (error) {
       throw new BadRequestException({message: error.message})
@@ -63,17 +68,27 @@ export class OrderService {
     }
   }
 
-  async update(id: number, updateOrderDto: UpdateOrderDto) {
+  async update(id: number, data: UpdateOrderDto, req: Request) {
     try {
-      
+      let find = await this.prisma.order.findFirst({where: {id}})
+      if(!["SUPER-ADMIN", 'ADMIN'].includes(req['user'].role) && req['user'].id == find?.userId){
+        throw new BadRequestException("You cannot update others order! Only ADMIN or SUPER-ADMIN can update others order")
+      }
+
+      let updated = await this.prisma.order.update({where: {id}, data})
     } catch (error) {
       throw new BadRequestException({message: error.message})
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
     try {
-      
+      let find = await this.prisma.order.findFirst({where: {id}})
+      if(!['ADMIN'].includes(req['user'].role) && req['user'].id == find?.userId){
+        throw new BadRequestException("You cannot update others order! Only ADMIN or SUPER-ADMIN can update others order")
+      }
+
+      let deleted =await this.prisma.order.delete({where: {id}})
     } catch (error) {
       throw new BadRequestException({message: error.message})
     }

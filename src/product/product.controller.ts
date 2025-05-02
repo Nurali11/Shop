@@ -28,13 +28,16 @@ export class ProductController {
     return this.productService.findOne(+id, req);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Req() req: Request) {
+    return this.productService.update(+id, updateProductDto, req);
   }
 
+
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    return this.productService.remove(+id, req);
   }
 }

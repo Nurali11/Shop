@@ -7,6 +7,8 @@ import { LoginDto } from './dto/login-user.dto';
 import { ResetDto } from './dto/reset-password.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('auth')
 export class UserController {

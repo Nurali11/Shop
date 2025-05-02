@@ -18,9 +18,13 @@ export class ColorService {
     }
   }
 
-  async findAll() {
+  async findAll(name: string) {
     try {
-      let all = await this.prisma.color.findMany()
+      let filter:any = {}
+      if(name){
+        filter.name = {contains: name, mode: "insensitive"}
+      }
+      let all = await this.prisma.color.findMany({where: filter})
       return all
     } catch (error) {
       throw new BadRequestException({message: error.message})

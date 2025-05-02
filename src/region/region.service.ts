@@ -21,9 +21,13 @@ export class RegionService {
     }
   }
 
-  async findAll() {
+  async findAll(name: string) {
     try {
-      let all = await this.prisma.region.findMany()
+      let all = await this.prisma.region.findMany({
+        where: {
+          name: {contains: name, mode: "insensitive"}
+        }
+      })
       return all
     } catch (error) {
       throw new BadRequestException({message: error.message})

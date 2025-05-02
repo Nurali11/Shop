@@ -134,9 +134,13 @@ export class ProductService {
   }
   
 
-  async update(id: number, data: UpdateProductDto) {
+  async update(id: number, data: UpdateProductDto, req: Request) {
     try {
-      let updated = await this.prisma.product.update({where: 
+      let find = await this.prisma.product.findFirst({where: {id}})
+      if(!["SUPER-ADMIN", 'ADMIN'].includes(req['user'].role) && req['user'].id == find?.userId){
+        throw new BadRequestException("You cannot update others product! Only ADMIN or SUPER-ADMIN can update others product")
+      }
+      let updated = await this.prisma.product.update({where:
         {id},
         data:{
           ...data,
@@ -155,8 +159,12 @@ export class ProductService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
     try {
+      let find = await this.prisma.product.findFirst({where: {id}})
+      if(!['ADMIN'].includes(req['user'].role) && req['user'].id == find?.userId){
+        throw new BadRequestException("You cannot delete others product! Only ADMIN or SUPER-ADMIN can delete others product")
+      }
       let deleted = await this.prisma.product.delete({where: {id}})
       if(!deleted){
         throw new BadRequestException(`Product with ${id} id not  found`)

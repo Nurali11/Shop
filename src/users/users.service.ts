@@ -4,15 +4,27 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class UsersService {
   constructor(
     private prisma: PrismaService
   ){}
-  async findAll() {
+  async findAll(firstName: string, lastName: string, year:string, email:string) {
     try {
-      let all = await this.prisma.user.findMany()
+      const filter: any = {}
+      if(firstName){
+        filter.firstName = {contains: firstName, }
+      }
+      let all = await this.prisma.user.findMany({
+        where: {
+          firstName: {contains: firstName, mode: "insensitive"},
+          lastName: {contains: lastName, mode: "insensitive"},
+          year: year,
+          email: {contains: email, mode: "insensitive"}
+        }
+      })
       return all
     } catch (error) {
       throw new BadRequestException({message: error.message})
@@ -43,7 +55,7 @@ export class UsersService {
   async remove(id: number, req: Request) {
     try {
       if(req['user'].role != "ADMIN" && req['user'].id == id){
-        throw new BadRequestException("You cannot delete othes account! Only ADMIN or SUPER-ADMIN can!")
+        throw new BadRequestException("You cannot delete others account! Only ADMIN or SUPER-ADMIN can!")
       }
       let deleted = await this.prisma.user.delete({where: {id}})
       return deleted

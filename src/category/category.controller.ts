@@ -6,6 +6,7 @@ import { Role } from 'src/roles/roles.enum';
 import { RoleD } from 'src/roles/decorators/role.decorator';
 import { RolesGuard } from 'src/roles/roles.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('category')
 export class CategoryController {
@@ -17,8 +18,12 @@ export class CategoryController {
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
-  }
+  } 
 
+  @ApiQuery({
+    name: "name",
+    required: false
+  })
   @Get()
   findAll(@Query('name') name: string) {
     return this.categoryService.findAll(name);

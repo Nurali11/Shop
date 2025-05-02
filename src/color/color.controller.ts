@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ColorService } from './color.service';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
@@ -6,13 +6,14 @@ import { RolesGuard } from 'src/roles/roles.guard';
 import { Role } from 'src/roles/roles.enum';
 import { RoleD } from 'src/roles/decorators/role.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('color')
 export class ColorController {
   constructor(private readonly colorService: ColorService) {}
 
   
-  @RoleD(Role.ADMIN)
+  @RoleD(Role.ADMIN, Role.USER)
   @UseGuards(AuthGuard, RolesGuard)
   @Post()
   create(@Body() createColorDto: CreateColorDto) {
@@ -20,9 +21,13 @@ export class ColorController {
   }
 
   
+  @ApiQuery({
+      name: "name",
+      required: false
+    })
   @Get()
-  findAll() {
-    return this.colorService.findAll();
+  findAll(@Query("name") name: string) {
+    return this.colorService.findAll(name);
   }
 
   @Get(':id')

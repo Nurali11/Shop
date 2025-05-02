@@ -73,9 +73,12 @@ export class UserService {
       if(existingUser.status == "INACTIVE"){
         throw new BadRequestException("Verify your email first")
       }
-      let region = await this.prisma.region.findFirst({where: {id: data.regionId}})
-      if(!region){
-        throw new BadRequestException(`Region with ${data.regionId} id not found`)
+      if(data.regionId){
+        let region = await this.prisma.region.findFirst({where: {id: data.regionId}})
+        if(!region){
+          throw new BadRequestException(`Region with ${data.regionId} id not found`)
+        }
+
       }
       
       let hash = bcrypt.hashSync(password, 10)

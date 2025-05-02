@@ -13,8 +13,8 @@ export class ColorController {
   constructor(private readonly colorService: ColorService) {}
 
   
-  // @RoleD(Role.ADMIN, Role.USER)
-  // @UseGuards(AuthGuard, RolesGuard) 
+  @RoleD(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard) 
   @Post()
   create(@Body() createColorDto: CreateColorDto) {
     return this.colorService.create(createColorDto);

@@ -11,8 +11,8 @@ import { ApiQuery } from '@nestjs/swagger';
 @Controller('region')
 export class RegionController {
   constructor(private readonly regionService: RegionService) {}
-  // @RoleD(Role.ADMIN, Role.USER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  @RoleD(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Post()
   create(@Body() createRegionDto: CreateRegionDto) {
     return this.regionService.create(createRegionDto);

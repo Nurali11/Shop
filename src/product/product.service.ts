@@ -25,6 +25,13 @@ export class ProductService {
       if(!category){
         throw new BadRequestException(`Category with ${data.categoryId} id not found`)
       }
+
+      for(let i of data.colors){
+        let find = await this.prisma.color.findFirst({where: {id: i}})
+        if(!find){
+          throw new BadRequestException(`Color with ${i} id not found`)
+        }
+      }
       let newPrd = await this.prisma.product.create({
         data: {
           ...data,

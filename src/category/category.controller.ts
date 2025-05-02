@@ -13,8 +13,8 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   
-  // @RoleD(Role.ADMIN, Role.USER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  @RoleD(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);

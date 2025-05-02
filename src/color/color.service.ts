@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
 import { Prisma } from '@prisma/client';
@@ -14,7 +14,7 @@ export class ColorService {
       let newColor = await this.prisma.color.create({data})
       return newColor
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -23,7 +23,7 @@ export class ColorService {
       let all = await this.prisma.color.findMany()
       return all
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -32,7 +32,7 @@ export class ColorService {
       let one = await this.prisma.color.findFirst({where: {id}})
       return one
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -41,7 +41,7 @@ export class ColorService {
       let updated = await this.prisma.color.update({where: {id}, data})
       return updated
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -50,7 +50,7 @@ export class ColorService {
       let deleted = await this.prisma.color.delete({where: {id}})
       return deleted
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 }

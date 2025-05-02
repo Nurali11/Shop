@@ -10,6 +10,8 @@ export class AuthGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean{
+    console.log("qwertew");
+    
     const req: Request = context.switchToHttp().getRequest();
 
     const token = req.headers.authorization?.split(' ')?.[1];
@@ -24,10 +26,10 @@ export class AuthGuard implements CanActivate {
         id: data['id'],
         role: data['role']
       }
-      console.log(req['user']);
+      console.log("qwefd");
+      
     } catch (error) {
-      console.log("kirdi");
-      return error.message;
+      throw new UnauthorizedException('Invalid token');
     }
     return true;
   }

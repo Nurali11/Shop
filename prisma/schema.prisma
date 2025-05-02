@@ -35,14 +35,14 @@ model User {
   id            Int       @id @default(autoincrement())
   firstName     String?
   lastName      String?
-  role          Roles?
+  role          Roles?    @default(USER)
   email         String    @unique
   year          String?
   password      String?
   photo         String?
   Region        Region?   @relation(fields: [regionId], references: [id])
   regionId      Int?
-  status        String?    @default("INACTIVE")
+  status        String?   @default("INACTIVE")
   Products      Product[]
   sentChats     Chat[]    @relation("FromUser")
   receivedChats Chat[]    @relation("ToUser")
@@ -53,6 +53,7 @@ model User {
   Likes     Likes[]
   Comments  Comments[]
   Orders    Order[]
+  Sessions  Sessions[]
   Views     Views[]
   createdAt DateTime   @default(now())
 }
@@ -65,6 +66,7 @@ model Product {
   skidka      Float
   description String
   count       Int
+  photo       String?
   type        ProductTypes
   status      Status
   colors      Color[]      @relation("ColorProducts")
@@ -145,6 +147,8 @@ model Likes {
 
 model Order {
   id        Int      @id @default(autoincrement())
+  count     Int
+  colorId   Int
   Product   Product  @relation(fields: [productId], references: [id])
   productId Int
   User      User     @relation(fields: [userId], references: [id])
@@ -158,4 +162,11 @@ model Category {
   photo     String
   createdAt DateTime  @default(now())
   Product   Product[]
+}
+
+model Sessions {
+  id     Int   @id @default(autoincrement())
+  device Json
+  User   User? @relation(fields: [userId], references: [id])
+  userId Int?
 }

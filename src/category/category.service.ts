@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class CategoryService {
@@ -13,16 +14,20 @@ export class CategoryService {
       let newCtgr = await this.prisma.category.create({data})
       return newCtgr
     } catch (error) {
-      return { message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
-  async findAll() {
+  async findAll(name: string) {
     try {
-      let all = await this.prisma.category.findMany()
+      let filter:any = {}
+      if(name){
+        filter.name = {contains: name, mode: "insensitive"}
+      }
+      let all = await this.prisma.category.findMany({where: filter})
       return all
     } catch (error) {
-      return { message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -31,7 +36,7 @@ export class CategoryService {
       let one = await this.prisma.category.findFirst({where: {id}})
       return one
     } catch (error) {
-      return { message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -40,7 +45,7 @@ export class CategoryService {
       let updated = await this.prisma.category.update({where: {id}, data})
       return updated
     } catch (error) {
-      return { message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -49,7 +54,7 @@ export class CategoryService {
       let deleted = await this.prisma.category.delete({where: {id}})
       return deleted
     } catch (error) {
-      return { message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 }

@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './auth.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateAdminDto, CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RegisterEmail, VerifyEmail } from './dto/register-user.dto';
 import { LoginDto } from './dto/login-user.dto';
+import { ResetDto } from './dto/reset-password.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Request } from 'express';
 
 @Controller('auth')
 export class UserController {
@@ -25,14 +28,24 @@ export class UserController {
   }
 
   @Post("login")
-  login(@Body() data: LoginDto){
-    return this.userService.login(data)
+  login(@Body() data: LoginDto, @Req() req: any){
+    return this.userService.login(data, req)
   }
 
   @Post("resend-otp")
   resendOtp(@Body() data: RegisterEmail){
     return this.userService.resendOtp(data)
   }
+
+  @UseGuards(AuthGuard)
+  @Post("reset-password")
+  resetPassword(@Body() data: ResetDto, @Req() req: Request){
+    return this.userService.resetPassword(data, req)
+  }
+
+  @UseGuards(AuthGuard)
+  @Post("addAdmin")
+  addAdmin(@Body() data: CreateAdminDto, @Req() req: Request){
+    return this.userService.addAdminOrSuper(data, req)
+  }
 }
-
-

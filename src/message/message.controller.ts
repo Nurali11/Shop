@@ -9,9 +9,10 @@ import { Request } from 'express';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
+  create(@Body() createMessageDto: CreateMessageDto, @Req() req: Request) {
+    return this.messageService.create(createMessageDto, req);
   }
 
   @Get()
@@ -35,13 +36,15 @@ export class MessageController {
     return this.messageService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto) {
-    return this.messageService.update(+id, updateMessageDto);
+  update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto, @Req() req: Request) {
+    return this.messageService.update(+id, updateMessageDto, req);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.messageService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    return this.messageService.remove(+id, req);
   }
 }

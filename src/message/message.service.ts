@@ -1,17 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Request } from 'express';
 
 @Injectable()
 export class MessageService {
   constructor(
     private prisma: PrismaService
   ){}
-  async create(data: CreateMessageDto) {
+  async create(data: CreateMessageDto, req: Request) {
     try {
-      let message = await this.prisma.message.create({data})
-
+      let message = await this.prisma.message.create({
+        data: {
+          ...data,
+          fromId: req['user'].id
+        }
+      })
       return message
     } catch (error) {
       return error.message
@@ -23,7 +28,7 @@ export class MessageService {
       let all = await this.prisma.message.findMany()
       return all
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -38,7 +43,7 @@ export class MessageService {
 
       return messages
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
   async findByChatId(chatId: number){
@@ -46,30 +51,40 @@ export class MessageService {
       let messages = await this.prisma.message.findMany({where: {chatId}})
       return messages
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
   async findOne(id: number) {
     try {
-      
+      let message = await this.prisma.message.findFirst({where: {id}})
+      return message
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
-  async update(id: number, updateMessageDto: UpdateMessageDto) {
+  async update(id: number, updateMessageDto: UpdateMessageDto, req: Request) {
     try {
-      
+      let find = await this.prisma.message.findFirst({where: {id}})
+      if([find?.fromId, find?.toId].includes(req['user'].id) && req['user'].role != "ADMIN"){
+        throw new BadRequestException("You cannot update others messages!")
+      }
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
     try {
-      
+      let find = await this.prisma.message.findFirst({where: {id}})
+      if([find?.fromId, find?.toId].includes(req['user'].id) && req['user'].role != "ADMIN"){
+        throw new BadRequestException("You cannot update others messages!")
+      }
+
+      let deleted = await this.prisma.message.delete({where: {id}})
+      return deleted
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 }

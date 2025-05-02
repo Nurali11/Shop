@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateViewDto } from './dto/create-view.dto';
 import { UpdateViewDto } from './dto/update-view.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -27,7 +27,16 @@ export class ViewsService {
 
       return newView
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
+    }
+  }
+
+  async myViews(req: Request){
+    try {
+      let my = await this.prisma.views.findMany({where: {userId: req['user'].id}, include: {Product: true}})
+      return my
+    } catch (error) {
+      throw new BadRequestException({message: error.message})
     }
   }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsInt, IsEnum, IsNumber, Min, Max, IsOptional } from 'class-validator';
+import { IsString, IsInt, IsEnum, IsNumber, Min, Max, IsOptional, ArrayNotEmpty } from 'class-validator';
 import { ProductTypes, Status } from '@prisma/client';
 
 export class CreateProductDto {
@@ -54,6 +54,8 @@ export class CreateProductDto {
     example: [1],
     description: "Color of the product"
   })
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
   colors: number[]
 
   @ApiProperty({
@@ -71,4 +73,12 @@ export class CreateProductDto {
   })
   @IsEnum(Status)
   status: Status;
+
+
+  @ApiProperty({
+    name: "photo",
+    example: "photo.png",
+    description: "photo of the product"
+  })
+  photo: string
 }

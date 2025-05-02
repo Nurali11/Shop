@@ -2,13 +2,6 @@ import { ApiProperty } from "@nestjs/swagger"
 
 export class CreateMessageDto {
     @ApiProperty({
-        name: "fromId",
-        description: "fromId ot the messages",
-        example: 1
-    })
-    fromId: number
-
-    @ApiProperty({
         name: "toId",
         description: "toId ot the messages",
         example: 2

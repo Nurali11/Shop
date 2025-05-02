@@ -17,7 +17,7 @@ export class RegionService {
       let newRegion = await this.prisma.region.create({data})
       return newRegion
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -26,7 +26,7 @@ export class RegionService {
       let all = await this.prisma.region.findMany()
       return all
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -35,7 +35,7 @@ export class RegionService {
       let one = await this.prisma.region.findFirst({where: {id}})
       return one
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -43,7 +43,7 @@ export class RegionService {
     try {
       let updated = await this.prisma.region.update({where: {id}, data})
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -52,7 +52,7 @@ export class RegionService {
       let deleted = await this.prisma.region.delete({where: {id}})
       return deleted
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 }

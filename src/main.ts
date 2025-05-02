@@ -6,10 +6,11 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors({ origin: 'http://localhost:5173' });
   const config = new DocumentBuilder()
   .setTitle('Shop Project')
   .setDescription('The shop API description')
-  .setVersion('1  .0')
+  .setVersion('1.0')
   .addSecurityRequirements('bearer', ['bearer'])
   .addBearerAuth()
   .build();

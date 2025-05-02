@@ -4,6 +4,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 import { ViewsService } from 'src/views/views.service';
+import { ProductQueryDto } from './dto/product-query.dto';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class ProductService {
@@ -38,36 +40,99 @@ export class ProductService {
     }
   }
 
-  async findAll() {
-    try {
-      let all = await this.prisma.product.findMany({
-        include: {
-          Views: true,
-          colors: true
-        }
-      })
-      let allWithCounts = all.map(product => ({
-        ...product,
-        viewsCount: product.Views.length
-      }));
-      return allWithCounts
-    } catch (error) {
-      return {message: error.message}
+  async findAll(query: ProductQueryDto) {
+    const {
+      name,
+      type,
+      status,
+      categoryId,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 10,
+    } = query;
+  
+    const where: any = {};
+
+    if(name) where.name = {contains: name, mode: "insensitive"}
+    if (type) where.type = type;
+    if (status) where.status = status;
+    if (categoryId) where.categoryId = +categoryId;
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = +minPrice;
+      if (maxPrice) where.price.lte = +maxPrice;
     }
+
+    const products =  this.prisma.product.findMany({
+      where,
+      skip: +(page - 1) * +limit,
+      take: +limit,
+      include: { Category: true, Views: true, Likes: true, Comments: true, colors: true, User: true }
+    });
+
+    const withAvgStar = (await products).map(product => {
+      const comments = product.Comments;
+      const starSum = comments.reduce((acc, c) => acc + (c.star || 0), 0);
+      const avgStar = comments.length ? +(starSum / comments.length).toFixed(1) : null;
+  
+      return {
+        ...product,
+        avgStar,
+      };
+    });
+  
+    return withAvgStar;
   }
+  
 
   async findOne(id: number, req: Request) {
     try {
-      let one = await this.prisma.product.findFirst({where :{id}})
-      if(!one){
-        throw new BadRequestException(`Product with ${id} id not  found`)
+      const product = await this.prisma.product.findUnique({
+        where: { id },
+        include: {
+          User: true,
+          Category: true,
+          colors: true,
+          Likes: true,
+          Views: true,
+          Comments: {
+            include: {
+              User: true, // если хочешь видеть кто оставил комментарий
+            }
+          }
+        }
+      });
+  
+      if (!product) {
+        throw new BadRequestException(`Product with ID ${id} not found`);
       }
-      await this.view.create({productId: one.id}, req)
-      return one
+  
+      // Увеличить просмотры, если пользователь авторизован
+      if (req['user']) {
+        await this.view.create({ productId: product.id }, req);
+      }
+  
+      // Вычисление средней оценки
+      const totalStars = product.Comments.reduce((sum, c) => sum + (c.star || 0), 0);
+      const avgStar = product.Comments.length
+        ? +(totalStars / product.Comments.length).toFixed(1)
+        : null;
+  
+      // Возвращаем всё вместе с computed fields
+      return {
+        ...product,
+        avgStar,
+        viewsCount: product.Views.length,
+        likesCount: product.Likes.length,
+        commentsCount: product.Comments.length,
+      };
+  
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({ message: error.message });
     }
   }
+  
 
   async update(id: number, data: UpdateProductDto) {
     try {
@@ -86,7 +151,7 @@ export class ProductService {
       }
       return updated
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -98,7 +163,7 @@ export class ProductService {
       }
       return deleted
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 }

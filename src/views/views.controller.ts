@@ -14,4 +14,10 @@ export class ViewsController {
   create(@Body() createViewDto: CreateViewDto, @Req() req: Request) {
     return this.viewsService.create(createViewDto, req);
   }
+
+  @UseGuards(AuthGuard)
+  @Get("my-views")
+  myViews(@Req() req: Request){
+    return this.viewsService.myViews(req)
+  }
 }

@@ -25,19 +25,21 @@ export class CommentController {
   myComments(@Req() req: Request){
     return this.commentService.myComments(req)
   }
-
+  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.commentService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentService.update(+id, updateCommentDto);
+  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto, @Req() req: Request) {
+    return this.commentService.update(+id, updateCommentDto, req);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    return this.commentService.remove(+id, req);
   }
 }

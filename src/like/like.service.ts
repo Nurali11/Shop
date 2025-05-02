@@ -30,7 +30,7 @@ export class LikeService {
 
       return like
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -59,7 +59,16 @@ export class LikeService {
         data: disliked
       }
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
+    }
+  }
+
+  async myLikes(req: Request){
+    try {
+      let likes = await this.prisma.likes.findMany({where: {userId: req['user'].id}})
+      return likes
+    } catch (error) {
+      throw new BadRequestException({message: error.message})
     }
   }
 }

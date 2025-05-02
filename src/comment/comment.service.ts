@@ -23,7 +23,7 @@ export class CommentService {
       })
       return newComment
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -32,7 +32,7 @@ export class CommentService {
       let my = await this.prisma.comments.findMany({where: {userId: req['user'].id}})
       return my
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
   async findAll() {
@@ -40,7 +40,7 @@ export class CommentService {
       let all = await this.prisma.comments.findMany()
       return all
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
@@ -49,24 +49,32 @@ export class CommentService {
       let one = await this.prisma.comments.findFirst({where: {id}})
       return one
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
-  async update(id: number, data: UpdateCommentDto) {
+  async update(id: number, data: UpdateCommentDto, req: Request) {
     try {
+      let find = await this.prisma.comments.findFirst({where: {id}})
+      if(!["ADMIN", "SUPER-ADMIN"].includes(req['user'].role) && req['user'].id != find?.userId){
+        throw new BadRequestException("You cannot update others comment! Only ADMIN or SUPER-ADMIN can!")
+      }
       let updated = await this.prisma.comments.update({where: {id}, data})
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
     try {
+      let find = await this.prisma.comments.findFirst({where: {id}})
+      if(req['user'].role != "ADMIN" && req['user'].id != find?.userId){
+        throw new BadRequestException("You cannot delete others comment! Only ADMIN can!")
+      }
       let deleted = await this.prisma.comments.delete({where: {id}})
       return deleted
     } catch (error) {
-      return {message: error.message}
+      throw new BadRequestException({message: error.message})
     }
   }
 }

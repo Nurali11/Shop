@@ -20,4 +20,11 @@ export class LikeController {
   dislike(@Body() createLikeDto: DislikeDto,@Req() req: Request) {
     return this.likeService.dislike(createLikeDto, req);
   }
+
+  @UseGuards(AuthGuard)
+  @Get("my-likes")
+  myLikes(@Req() req: Request){
+    return this.likeService.myLikes(req)
+  }
+
 }

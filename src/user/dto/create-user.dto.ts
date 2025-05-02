@@ -33,10 +33,10 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({
+    required: false,
     example: 1,
     description: 'ID of the region the user belongs to',
   })
-  @IsInt()
   regionId: number;
 
   @ApiProperty({

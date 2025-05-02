@@ -78,7 +78,6 @@ export class UserService {
         if(!region){
           throw new BadRequestException(`Region with ${data.regionId} id not found`)
         }
-
       }
       
       let hash = bcrypt.hashSync(password, 10)
